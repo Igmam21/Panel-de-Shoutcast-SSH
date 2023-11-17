@@ -41,9 +41,7 @@ echo -e "\e[1;33mEN LINEA:\e[0m  \e[1;32m$cantidad_pid\e[0m"
     echo -e "\e[1;33mOS:\e[0m        \e[1;34m$sistema_operativo\e[0m"
     echo -e "\e[1;33mFECHA:\e[0m     \e[1;34m$fecha\e[0m"
     echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m"
-    echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m
-
-"
+    echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m"
     echo "------------------------------------------------------------"
 
 
@@ -59,8 +57,8 @@ echo "------------------------------------------------------------"
 echo -e "\e[1;31m(1) .\e[1;32mCREAR PUERTO SHOUTCAST\e[0m"
 echo -e "\e[1;31m(2) .\e[1;32mVER CUENTAS DE SHOUTCAST\e[0m"
 echo -e "\e[1;31m(3) .\e[1;32mBORRAR CUENTA SHOUTCAST\e[0m"
-echo -e "\e[1;31m(4) .\e[1;32mAGREGAR DOMINIO\e[0m"
-echo -e "\e[1;31m(5) .\e[1;32mAGREGAR SSL\e[0m"
+echo -e "\e[1;31m(4) .\e[1;32mAGREGAR DOMINIO HOSTNAME\e[0m"
+echo -e "\e[1;31m(5) .\e[1;32mINSTALAR SSL\e[0m"
 echo -e "\e[1;31m(6) .\e[1;32mSUSPENDER USER\e[0m"
 echo -e "\e[1;31m(7) .\e[1;32mREACTIVAR USER\e[0m"
 echo -e "\e[1;31m(8) .\e[1;32mREINICIAR SERVER\e[0m"
