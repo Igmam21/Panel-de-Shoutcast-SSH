@@ -64,7 +64,8 @@ echo -e "\e[1;31m(5) .\e[1;32mAGREGAR SSL\e[0m"
 echo -e "\e[1;31m(6) .\e[1;32mSUSPENDER USER\e[0m"
 echo -e "\e[1;31m(7) .\e[1;32mREACTIVAR USER\e[0m"
 echo -e "\e[1;31m(8) .\e[1;32mREINICIAR SERVER\e[0m"
-echo -e "\e[1;31m(9) .\e[1;32mFULL DETALLES DE PUERTOS \e[0m\n"
+echo -e "\e[1;31m(9) .\e[1;32mFULL DETALLES DE PUERTOS \e[0m"
+echo -e "\e[1;31m(10) .\e[1;32mAUTO INICIAR\e[0m\n"
 
 
 
@@ -448,6 +449,47 @@ reiniciar_server() {
     reboot
 }
 
+#!/bin/bash
+
+# Función para agregar o quitar la línea "#auto inicio del scrip menu" en ~/.profile
+auto_start() {
+    clear
+
+    echo -e "\e[1;33mGESTIÓN DEL AUTO-INICIO\e[0m\n"
+    echo -e "\e[97m1. AGREGAR A INICIO AUTOMATICO\e[0m"
+    echo -e "\e[97m2. ELIMINAR EL INICIO AUTOMATICO\e[0m\n\n"
+
+    read -p "ELIJA UNA OPCION: " opcion
+
+    case $opcion in
+        1)
+            # Agregar la línea al archivo ~/.profile
+            echo "#auto inicio del scrip" >> ~/.profile
+            echo "menu" >> ~/.profile
+            echo "AUTOMATICO ACTIVADO."
+            ;;
+        2)
+            # Eliminar la línea del archivo ~/.profile
+            sed -i '/#auto inicio del scrip/,/menu/d' ~/.profile
+            echo "AITOMATICO DESACTIVADO"
+            ;;
+        *)
+            echo "Opción no válida."
+            ;;
+    esac
+
+    # Opción para volver
+    echo -e "\n\e[32m------------------------------------------------------------\e[0m"
+    echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+    echo -e "\e[32m------------------------------------------------------------\e[0m"
+
+    read volver
+    if [ "$volver" -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+    fi
+}
+
+
 
 
 
@@ -540,6 +582,10 @@ while true; do
                     ;;
                 9) detalles_full
                     ;;
+                10) auto_start
+                    ;;
+
+
                     
                  0)
     clear  # Limpiar la pantalla al entrar en esta función
