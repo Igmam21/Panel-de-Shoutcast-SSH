@@ -41,6 +41,8 @@ echo -e "\e[1;33mEN LINEA:\e[0m  \e[1;32m$cantidad_pid\e[0m"
     echo -e "\e[1;33mOS:\e[0m        \e[1;34m$sistema_operativo\e[0m"
     echo -e "\e[1;33mFECHA:\e[0m     \e[1;34m$fecha\e[0m"
     echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m
+    echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m
+
 "
     echo "------------------------------------------------------------"
 
