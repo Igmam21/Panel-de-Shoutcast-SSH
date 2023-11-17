@@ -1,0 +1,51 @@
+#!/bin/bash
+
+
+
+echo "Update......................................................."
+apt update -y
+
+echo "upgrade;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"
+apt upgrade -y
+
+echo "Ir a Ruta"
+cd /usr/local/bin
+
+echo "DESACARGANDO archivo"
+wget https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/menu
+
+echo "Dando permisos..................................................."
+chmod 777 /usr/local/bin/menu
+
+echo "Ir a Home........................................................."
+cd /home
+
+echo "crear carpeta;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"
+mkdir shoutcast
+
+echo "ir a la carpeta"
+cd shoutcast
+
+echo "crear la carpeta radios"
+mkdir radios
+
+echo "crear carpeta logs"
+mkdir logs
+
+echo "crer archivo de cuentas"
+touch cuentas_creadas.txt
+
+echo "crear archivo de suspendidos"
+touch puertos_suspendidos.txt
+
+echo "DESACARGANDO shoutcast"
+wget https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/8000
+
+echo "asignando permisos"
+chmod 777 8000
+
+
+echo "////////////////////////////////////////////////////////////////////
+/////////////////Para ejecutar por favor escriba menu///////////////
+////////////////Para salir de este msj Ctrl +C        //////////////
+///////////////////////////////////////////////////////////////////"
