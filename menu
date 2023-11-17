@@ -1,0 +1,554 @@
+#!/bin/bash
+
+
+
+mostrar_menu() {
+        clear  # Limpia la pantalla al entrar en esta función
+
+
+archivo_info_cuentas="/home/shoutcast/cuentas_creadas.tx"
+
+obtener_cantidad_usuarios_conectados() {
+    usuarios_conectados=$(who | wc -l)
+    echo -n "$usuarios_conectados"
+}
+
+# Obtener la información del sistema
+ip=$(hostname -I | awk '{print $1}')
+hora=$(date +"%T")
+sistema_operativo=$(lsb_release -ds)
+fecha=$(date +"%Y-%m-%d")
+
+
+#muestra las cuentas totales creadas en el panel
+usuarios_totales=$(wc -l < /home/shoutcast/cuentas_creadas.txt)
+
+
+
+
+# Imprimir la información formateada con colores
+    echo "------------------------------------------------------------"
+echo -e "\e[1;33mCUENTAS SHOUTCAST:\e[0m      \e[1;31m$usuarios_totales\e[0m"
+
+# Obtener la cantidad de archivos .pid en /home/shoutcast/radios
+cantidad_pid=$(find /home/shoutcast/radios -type f -name "*.pid" | wc -l)
+
+# Mostrar la cantidad de streams en línea
+echo -e "\e[1;33mEN LINEA:\e[0m  \e[1;32m$cantidad_pid\e[0m"
+
+    echo -e "\e[1;33mIP:\e[0m        \e[1;34m$ip\e[0m"
+    echo -e "\e[1;33mHORA:\e[0m      \e[1;34m$hora\e[0m"
+    echo -e "\e[1;33mOS:\e[0m        \e[1;34m$sistema_operativo\e[0m"
+    echo -e "\e[1;33mFECHA:\e[0m     \e[1;34m$fecha\e[0m"
+    echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m
+"
+    echo "------------------------------------------------------------"
+
+
+    # Mensaje
+        # Imprime dos líneas en blanco y luego el mensaje centrado
+    printf "\n"
+    echo -e "\e[1;34m//////=// //=//  PANNEL DE CUENTAS SHOUTCAST  //=// //=/////\e[0m"
+ printf "\n"
+
+    
+    # Resto del menú con colores
+echo "------------------------------------------------------------"
+echo -e "\e[1;31m(1) .\e[1;32mCREAR PUERTO SHOUTCAST\e[0m"
+echo -e "\e[1;31m(2) .\e[1;32mVER CUENTAS DE SHOUTCAST\e[0m"
+echo -e "\e[1;31m(3) .\e[1;32mBORRAR CUENTA SHOUTCAST\e[0m"
+echo -e "\e[1;31m(4) .\e[1;32mAGREGAR DOMINIO\e[0m"
+echo -e "\e[1;31m(5) .\e[1;32mAGREGAR SSL\e[0m"
+echo -e "\e[1;31m(6) .\e[1;32mSUSPENDER USER\e[0m"
+echo -e "\e[1;31m(7) .\e[1;32mREACTIVAR USER\e[0m"
+echo -e "\e[1;31m(8) .\e[1;32mREINICIAR SERVER\e[0m"
+echo -e "\e[1;31m(9) .\e[1;32mFULL DETALLES DE PUERTOS \e[0m\n"
+
+
+
+echo "------------------------------------------------------------"
+echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m"
+echo "------------------------------------------------------------"
+
+
+}
+
+ir_inicio() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    menu  # Ejecuta el script MENU
+
+    exit  # Termina el programa después de ejecutar scrip.sh
+}
+
+
+
+crear_puerto() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "INGRESE EL NUMERO DEL PUERTO:"
+    read puerto
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "CREAR CONTRASEÑA DE STREAMING:"
+    read  pass
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "CREAR CONTRASEÑA ADMIN (Presione Enter para generar una automática):"
+    read -s contrasena_admin
+    # Si la contraseña de administrador está vacía, establecerla en un valor predeterminado
+    if [ -z "$Admin" ]; then
+        Admin="TYFAN&&@HKKLOA"
+    fi
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "INGRESE LA CANTIDAD DE USUARIOS:"
+    read user
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "INGRESE EL NOMBRE PARA IDENTIFICAR LA CUENTA:"
+    read nombre_cuenta
+    clear  # Limpia la pantalla al entrar en esta función
+
+# Verificar si el directorio existe
+directory="/home/shoutcast/radios"
+if [ ! -d "$directory" ]; then
+    mkdir -p "$directory"
+fi
+# Crear el archivo $puerto.conf en /home/shoutcast/radios
+conf_file="/home/shoutcast/radios/$puerto.conf"
+if [ ! -f "$conf_file" ]; then
+    touch "$conf_file"
+    echo "Archivo $puerto.conf creado en /home/shoutcast/radios"
+else
+    echo "El archivo $puerto.conf ya existe en /home/shoutcast/radios"
+fi
+
+#agregar la info al archivo de conf
+echo "Password=$pass" >> "$conf_file"
+echo "bitrate=96000" >> "$conf_file"
+echo "PortBase=$puerto" >> "$conf_file"
+echo "AdminPassword=$Admin" >> "$conf_file"
+echo "MaxUser=$user" >> "$conf_file"
+echo "NameAcconuts=$nombre_cuenta" >> "$conf_file"
+echo "ScreenLog=0" >> "$conf_file"
+echo "DestIP=ANY" >> "$conf_file"
+echo "Yport=80" >> "$conf_file"
+echo "streamid=1" >> "$conf_file"
+echo "songhistory=20" >> "$conf_file"
+echo "streampath=stream" >> "$conf_file"
+echo "NameLookups=0" >> "$conf_file"
+echo "PublicServer=always" >> "$conf_file"
+echo "AllowRelay=Yes" >> "$conf_file"
+echo "AllowPublicRelay=Yes" >> "$conf_file"
+echo "MetaInterval=32768" >> "$conf_file"
+echo "LogFile=/home/shoutcast/logs/$puerto.log" >> "$conf_file"
+echo "sslcertificatekeyfile= /etc/letsencrypt/live/$(hostname)/privkey.pem" >> "$conf_file"
+echo "sslcertificatefile=  /etc/letsencrypt/live/$(hostname)/cert.pem" >> "$conf_file"
+
+
+
+# Agregar al crontab para ejecutar el servidor al inicio
+    echo "@reboot root /home/shoutcast/radios/$puerto /home/shoutcast/radios/$puerto.conf &" | sudo tee -a /etc/crontab > /dev/null
+
+    mkdir -p /home/shoutcast/radios/logs/
+    touch /home/shoutcast/radios/logs/$puerto.log
+
+    cp /home/shoutcast/8000 /home/shoutcast/radios/$puerto
+    sudo chmod /home/shoutcast/radios/$puerto 777
+
+    # Agregar el puerto al archivo cuentas_creadas.txt
+    echo "$puerto ($nombre_cuenta)" >> /home/shoutcast/cuentas_creadas.txt
+
+    # Obtener detalles del archivo .conf
+    password_admin=$(awk -F "=" '/AdminPassword/{print $2}' /home/shoutcast/radios/$puerto.conf)
+    max_users_conf=$(awk -F "=" '/MaxUser/{print $2}' /home/shoutcast/radios/$puerto.conf)
+
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo -e "\n\e[32mCUENTA CREADA CON EXITO.\e[0m"  # Texto verde
+
+    # Mostrar detalles de la cuenta creada
+    echo -e "\n\e[1;31mDETALLES DE LA CUENTA:\e[0m"
+    echo -e "\e[33mPUERTO:\e[0m \e[97m$puerto\e[0m"
+    echo -e "\e[33mCONTRASEÑA DEL STREAMING:\e[0m \e[97m$pass\e[0m"
+    echo -e "\e[33mCONTRASEÑA DE ADMIN:\e[0m \e[97m$Admin\e[0m"
+    echo -e "\e[33mCANTIDAD DE USUARIOS:\e[0m \e[97m$user\e[0m"
+    echo -e "\e[33mNOMBRE DE LA CUENTA:\e[0m \e[97m$nombre_cuenta\e[0m"
+    echo -e "\e[33mLOG CREADO EN: /home/shoutcast/radios/logs/\e[0m\e[97m$puerto.log\e[0m"
+
+    # Iniciar streaming para el puerto ingresado
+    /home/shoutcast/radios/$puerto /home/shoutcast/radios/$puerto.conf &
+    echo -e "\n\e[32mSTREAMING INICIADO EN $puerto PARA $nombre_cuenta\e[0m"
+
+    # Opción para volver
+    echo "0. Volver"
+    read volver
+    if [ $volver -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+    fi
+}
+
+
+
+
+
+
+
+ver_cuentas() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo -e "\e[33mCUENTAS SHOUTCAST CREADAS:\e[0m\n\n"
+
+    # Leer el archivo cuentas_creadas.txt y mostrar la información enumerada
+    contador=1
+    while IFS= read -r linea; do
+        echo "$contador. $linea"
+        contador=$((contador+1))
+    done < /home/shoutcast/cuentas_creadas.txt
+
+
+   # Opción para volver
+echo -e "\n\n------------------------------------------------------------"
+echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+echo "------------------------------------------------------------"
+
+read volver
+if [ $volver -eq 0 ]; then
+    echo "Volviendo al menú principal..."
+fi
+
+}
+
+
+borrar_cuentas() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo -e "\e[32mSELECCIONE EL NÚMERO DEL PUERTO A BORRAR:\e[0m\n\n"
+
+    # Enumerar cuentas
+    contador=1
+    while IFS= read -r linea; do
+        echo -e "\e[33m(${contador})\e[0m $linea"
+        contador=$((contador+1))
+    done < /home/shoutcast/cuentas_creadas.txt
+
+    # Opción para volver
+    echo -e "\n\n\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+
+    echo -e "\n\e[95mIngrese el número de la cuenta que desea borrar:\e[0m"
+    read opcion
+
+    if [[ "$opcion" -eq 0 ]]; then
+        echo "Volviendo atrás..."
+    else
+        cuenta_a_borrar=$(sed -n "${opcion}p" /home/shoutcast/cuentas_creadas.txt)
+        numero_puerto=$(echo "$cuenta_a_borrar" | awk '{print $1}')
+
+        # Finalizar proceso si está en ejecución
+        killall "$numero_puerto"  # Puede requerir permisos adecuados
+
+        # Borrar archivos individuales con extensión .conf
+        rm -f "/home/shoutcast/radios/$numero_puerto.conf"
+        rm -f "/home/shoutcast/radios/$numero_puerto"
+
+        # Eliminar el puerto del archivo de cuentas creadas
+        sed -i "${opcion}d" /home/shoutcast/cuentas_creadas.txt
+
+        # Eliminar la línea que contiene el puerto específico en /etc/crontab
+        sudo sed -i "/\/home\/shoutcast\/radios\/$numero_puerto /d" /etc/crontab
+
+        echo -e "\e[97mCUENTA\e[0m \e[95m$numero_puerto\e[0m ELIMINADA.\e[0m"
+    fi
+
+    if [ "$opcion" -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+    fi
+}
+
+
+
+dominio() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo -e "Ingrese un nomre de dominio para personalizar el STREAMING:\n\n"
+    read nuevo_nombre
+
+    # Cambiar el nombre del servidor en /etc/hostname
+    sudo hostnamectl set-hostname $nuevo_nombre
+
+    # Actualizar el archivo /etc/hosts con el nuevo nombre
+    sudo sed -i "s/127.0.1.1.*/127.0.1.1\t$nuevo_nombre/" /etc/hosts
+
+    echo -e "\n\e[32mNombre de servidor actualizado a $nuevo_nombre.\e[0m"  # Texto verde
+    
+   # Opción para volver
+echo -e "\n\n------------------------------------------------------------"
+echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+echo "------------------------------------------------------------"
+
+read volver
+if [ $volver -eq 0 ]; then
+    echo "Volviendo al menú principal..."
+fi
+}
+
+
+
+
+
+
+
+
+ssl() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "Deteniendo Apache..."
+    sudo systemctl stop apache2
+
+    echo "Deteniendo Nginx..."
+    sudo systemctl stop nginx
+
+    echo "Ingrese el nombre de dominio (hostname) para generar el certificado SSL:"
+    read dominio
+
+    # Instalar Certbot si no está instalado
+    sudo apt update -y
+    sudo apt install certbot python3-certbot-nginx -y
+
+    # Obtener el certificado SSL para el dominio sin ingresar email ni confirmación
+    sudo certbot --nginx -d $dominio --register-unsafely-without-email --agree-tos
+
+    # Mostrar la fecha de vencimiento del certificado SSL
+    sudo certbot certificates
+
+    echo "Iniciando Apache..."
+    sudo systemctl start apache2
+
+    echo "Iniciando Nginx..."
+    sudo systemctl start nginx
+
+
+   # Opción para volver
+echo -e "\n\n------------------------------------------------------------"
+echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+echo "------------------------------------------------------------"
+
+read volver
+if [ $volver -eq 0 ]; then
+    echo "Volviendo al menú principal..."
+fi
+}
+
+
+
+
+
+
+
+
+
+suspender_shoutcast() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo -e "\e[1;31mPUERTOS DISPONIBLES PARA SUSPENDER:\e[0m]\n\n"
+    contador=1
+
+    # Leer el archivo que contiene los puertos
+    while IFS= read -r linea; do
+        echo -e "\e[1;31m($contador).\e[0m \e[1m\e[97m $linea\e[0m"
+        contador=$((contador+1))
+    done < /home/shoutcast/cuentas_creadas.txt
+
+    echo "Ingrese el número correspondiente al puerto para suspender:"
+    read opcion
+
+    # Leer el archivo nuevamente y seleccionar el puerto según la opción ingresada
+    contador=1
+    while IFS= read -r puerto; do
+        if [ $contador -eq $opcion ]; then
+            echo -e "\e[1;97mSuspendiendo puerto\e[0m \e[1;33m$puerto...\e[0m"
+            killall $puerto  # Ejecutar el comando killall para el puerto seleccionado
+            echo -e "\e[1;97mEl puerto\e[0m \e[1;33m$puerto\e[0m \e[1;97m ha sido suspendido.\e[0m"
+
+            # Agregar la info del puerto suspendido al archivo puertos_suspendidos.txt
+            echo "$puerto" >> /home/shoutcast/puertos_suspendidos.txt
+            break
+        fi
+        contador=$((contador+1))
+    done < /home/shoutcast/cuentas_creadas.txt
+
+    # Opción para volver
+    echo -e "\n\n\e[1;31m------------------------------------------------------------\e[0m"
+    echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+    echo -e "\e[1;31m------------------------------------------------------------\e[0m"
+
+    read volver
+    if [ $volver -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+    fi
+}
+
+
+
+
+unsuspender_shoutcast() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "PUERTOS DISPONIBLES PARA ACTIVAR:"
+
+    contador=1
+    # Leer el archivo que contiene los puertos suspendidos
+    while IFS= read -r linea; do
+        numero_puerto=$(echo "$linea" | awk '{print $1}')
+        echo "$contador. $numero_puerto"
+        contador=$((contador+1))
+    done < /home/shoutcast/puertos_suspendidos.txt
+
+    echo "Ingrese el número correspondiente al puerto para activar:"
+    
+    # Opción para volver
+    echo -e "\n\n------------------------------------------------------------"
+    echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+    echo "------------------------------------------------------------"
+
+    read opcion
+    if [ $opcion -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+        return
+    fi
+
+    # Activar el puerto seleccionado
+    contador=1
+    while IFS= read -r puerto; do
+        numero_puerto=$(echo "$puerto" | awk '{print $1}')
+        if [ $contador -eq $opcion ]; then
+            echo "Activando puerto $numero_puerto..."
+            /home/shoutcast/radios/$numero_puerto /home/shoutcast/radios/$numero_puerto.conf &
+            echo "El puerto $numero_puerto ha sido activado."
+
+            # Eliminar el puerto del archivo de puertos_suspendidos.txt
+            sed -i "/^$numero_puerto /d" /home/shoutcast/puertos_suspendidos.txt
+            break  # Romper el bucle después de activar el puerto
+        fi
+        contador=$((contador+1))
+    done < /home/shoutcast/puertos_suspendidos.txt
+}
+
+
+
+reiniciar_server() {
+    clear  # Limpia la pantalla al entrar en esta función
+
+    echo "Reiniciando el servidor..."
+
+    # Realizar un reinicio del sistema
+    reboot
+}
+
+
+
+
+detalles_full() {
+    clear  # Limpiar la pantalla al entrar en esta función
+
+    echo -e "\e[1;33mDETALLES DE LOS PUERTOS:\e[0m"
+
+    # Buscar archivos .conf en /home/shoutcast/radios y mostrar información
+    for radios in /home/shoutcast/radios/*.conf; do
+        if [ -f "$radios" ]; then
+            Lpuerto=$(awk -F '=' '/PortBase/ {print $2}' "$radios" | tr -d ' ')
+            Lnombre=$(awk -F '=' '/NameAcconuts/ {print $2}' "$radios" | tr -d ' ')
+            Lstream=$(awk -F '=' '/Password/ && !/AdminPassword/ {print $2}' "$radios" | tr -d ' ')
+            Lbitrate=$(awk -F '=' '/bitrate/ {print $2}' "$radios" | tr -d ' ')
+            Lusuarios=$(awk -F '=' '/MaxUser/ {print $2}' "$radios" | tr -d ' ')
+            Ladmin=$(awk -F '=' '/AdminPassword/ {print $2}' "$radios" | tr -d ' ')
+
+            echo -e "\e[32m--------------------------------------\e[0m"
+            echo -e "\e[33mPuerto:\e[0m  \e[97m$Lpuerto\e[0m"
+            echo -e "\e[33mNombre:\e[0m  \e[97m$Lnombre\e[0m"
+            echo -e "\e[33mContraseña:\e[0m  \e[97m$Lstream\e[0m"
+            echo -e "\e[33mBibrate:\e[0m  \e[97m$Lbitrate\e[0m"
+            echo -e "\e[33mUsuarios:\e[0m  \e[97m$Lusuarios\e[0m"
+            echo -e "\e[33mAdmin:\e[0m  \e[97m$Ladmin\e[0m"
+        fi
+    done
+
+    # Opción para volver
+    echo -e "\n\e[32m------------------------------------------------------------\e[0m"
+    echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+    echo -e "\e[32m------------------------------------------------------------\e[0m"
+
+    read volver
+    if [ $volver -eq 0 ]; then
+        echo "Volviendo al menú principal..."
+    fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Llamada a la función para inicializar el archivo de información de cuentas
+inicializar_archivo_info
+
+# Bucle principal
+while true; do
+    mostrar_menu
+    read -p "Ingrese su opción: " seleccion
+
+    case $seleccion in
+
+                h) ir_inicio
+                    ;;
+
+                1)
+                    crear_puerto
+                    ;;
+                2)
+                    ver_cuentas
+                    ;;
+                3)
+                    borrar_cuentas
+                    ;;
+                4)
+                    dominio
+                    ;;
+
+                5)  ssl
+                    ;;
+      
+                6) suspender_shoutcast
+                    ;;
+
+                7) unsuspender_shoutcast
+                    ;;
+    
+                8) reiniciar_server
+
+                    ;;
+                9) detalles_full
+                    ;;
+                    
+                 0)
+    clear  # Limpiar la pantalla al entrar en esta función
+
+            echo -e "\e[33mSALIENDO DEL PANNEL. ¡HASTA LUEGO!\e[0m\n\n\n"
+            exit 0
+
+            ;;
+        *)
+            echo "Opción no válida. Inténtelo de nuevo."
+            sleep 4
+            ;;
+    esac
+done
