@@ -8,6 +8,7 @@ mostrar_menu() {
 
 archivo_info_cuentas="/home/shoutcast/cuentas_creadas.tx"
 
+#Optiene info de user
 obtener_cantidad_usuarios_conectados() {
     usuarios_conectados=$(who | wc -l)
     echo -n "$usuarios_conectados"
@@ -18,42 +19,61 @@ ip=$(hostname -I | awk '{print $1}')
 hora=$(date +"%T")
 sistema_operativo=$(lsb_release -ds)
 fecha=$(date +"%Y-%m-%d")
+hostname=$(hostname)
 
 
 #muestra las cuentas totales creadas en el panel
 usuarios_totales=$(wc -l < /home/shoutcast/cuentas_creadas.txt)
 
-
-
-
-# Imprimir la información formateada con colores
-    echo "------------------------------------------------------------"
-echo -e "\e[1;33mCUENTAS SHOUTCAST:\e[0m      \e[1;31m$usuarios_totales\e[0m"
+# Obtener el total de puertos suspendidos
+suspendidas=$(cat /home/shoutcast/puertos_suspendidos.txt | wc -l)
 
 # Obtener la cantidad de archivos .pid en /home/shoutcast/radios
 cantidad_pid=$(find /home/shoutcast/radios -type f -name "*.pid" | wc -l)
 
-# Mostrar la cantidad de streams en línea
-echo -e "\e[1;33mEN LINEA:\e[0m  \e[1;32m$cantidad_pid\e[0m"
+# Obtener el uso de RAM
+ram=$(free -m | awk 'NR==2{printf "%.0f/%.0f", $3, $2}')
 
-    echo -e "\e[1;33mIP:\e[0m        \e[1;34m$ip\e[0m"
-    echo -e "\e[1;33mHORA:\e[0m      \e[1;34m$hora\e[0m"
-    echo -e "\e[1;33mOS:\e[0m        \e[1;34m$sistema_operativo\e[0m"
-    echo -e "\e[1;33mFECHA:\e[0m     \e[1;34m$fecha\e[0m"
-    echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m"
-    echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m"
-    echo "------------------------------------------------------------"
+# Obtener el uso de CPU
+cpu=$(top -bn1 | grep '^%Cpu' | awk '{printf "%.1f/%.1f", $2 + $4, 100 - $8}')
 
+
+
+
+# Imprimir la información formateada con colores
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
+# Mostrar información en dos columnas
+echo -e "\e[1;33mCUENTAS:\e[0m  \e[1;31m$usuarios_totales\e[0m\t \
+\e[1;33mIP:\e[0m          \e[1;34m$ip\e[0m"
+
+echo -e "\e[1;33mACTIVAS:\e[0m  \e[1;32m$cantidad_pid\e[0m\t \
+\e[1;33mOS:\e[0m          \e[1;34m$sistema_operativo\e[0m"
+
+echo -e "\e[1;33mSUSPEND:\e[0m  \e[1;35m$suspendidas\e[0m\t \
+\e[1;33mFECHA:\e[0m       \e[1;34m$fecha\e[0m"
+
+echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m\t \
+\e[1;33mHORA:\e[0m        \e[1;34m$hora\e[0m"
+
+
+echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m\t \
+\e[1;33mDOMINIO:\e[0m     \e[1;34m$hostname\e[0m"
+
+echo -e "\e[1;33mRAM:\e[0m  \e[1;97m$ram MB\e[0m\t \
+\e[1;33mCPU:\e[0m  \e[1;97m$cpu%\e[0m"
+
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
+ 
 
     # Mensaje
         # Imprime dos líneas en blanco y luego el mensaje centrado
-    printf "\n"
-    echo -e "\e[1;34m//////=// //=//  PANNEL DE CUENTAS SHOUTCAST  //=// //=/////\e[0m"
- printf "\n"
+  
+    echo -e "\n\e[1;37m//////=// //=//  PANNEL DE CUENTAS SHOUTCAST  //=// //=/////\e[0m\n"
+
 
     
     # Resto del menú con colores
-echo "------------------------------------------------------------"
+echo -e "\e[42m\e[32m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(1) .\e[1;32mCREAR PUERTO SHOUTCAST\e[0m"
 echo -e "\e[1;31m(2) .\e[1;32mVER CUENTAS DE SHOUTCAST\e[0m"
 echo -e "\e[1;31m(3) .\e[1;32mBORRAR CUENTA SHOUTCAST\e[0m"
@@ -67,9 +87,9 @@ echo -e "\e[1;31m(10) .\e[1;32mAUTO INICIAR\e[0m\n"
 
 
 
-echo "------------------------------------------------------------"
+echo -e "\e[42m\e[32m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m"
-echo "------------------------------------------------------------"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
 
 }
@@ -127,7 +147,7 @@ fi
 
 #agregar la info al archivo de conf
 echo "Password=$pass" >> "$conf_file"
-echo "bitrate=96000" >> "$conf_file"
+echo "bibrate=96000" >> "$conf_file"
 echo "PortBase=$puerto" >> "$conf_file"
 echo "AdminPassword=$Admin" >> "$conf_file"
 echo "MaxUser=$user" >> "$conf_file"
@@ -183,6 +203,7 @@ echo "sslcertificatefile=  /etc/letsencrypt/live/$(hostname)/cert.pem" >> "$conf
     echo -e "\n\e[32mSTREAMING INICIADO EN $puerto PARA $nombre_cuenta\e[0m"
 
     # Opción para volver
+    echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
     echo "0. Volver"
     read volver
     if [ $volver -eq 0 ]; then
@@ -210,9 +231,9 @@ ver_cuentas() {
 
 
    # Opción para volver
-echo -e "\n\n------------------------------------------------------------"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-echo "------------------------------------------------------------"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
 read volver
 if [ $volver -eq 0 ]; then
@@ -226,6 +247,8 @@ borrar_cuentas() {
     clear  # Limpia la pantalla al entrar en esta función
 
     echo -e "\e[32mSELECCIONE EL NÚMERO DEL PUERTO A BORRAR:\e[0m\n\n"
+    echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
+
 
     # Enumerar cuentas
     contador=1
@@ -235,9 +258,13 @@ borrar_cuentas() {
     done < /home/shoutcast/cuentas_creadas.txt
 
     # Opción para volver
-    echo -e "\n\n\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+    echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
+
+    echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     echo -e "\n\e[95mIngrese el número de la cuenta que desea borrar:\e[0m"
+
     read opcion
 
     if [[ "$opcion" -eq 0 ]]; then
@@ -284,9 +311,9 @@ dominio() {
     echo -e "\n\e[32mNombre de servidor actualizado a $nuevo_nombre.\e[0m"  # Texto verde
     
    # Opción para volver
-echo -e "\n\n------------------------------------------------------------"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-echo "------------------------------------------------------------"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
 read volver
 if [ $volver -eq 0 ]; then
@@ -331,9 +358,9 @@ ssl() {
 
 
    # Opción para volver
-echo -e "\n\n------------------------------------------------------------"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-echo "------------------------------------------------------------"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
 read volver
 if [ $volver -eq 0 ]; then
@@ -353,6 +380,8 @@ suspender_shoutcast() {
     clear  # Limpia la pantalla al entrar en esta función
 
     echo -e "\e[1;31mPUERTOS DISPONIBLES PARA SUSPENDER:\e[0m]\n\n"
+    echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
+
     contador=1
 
     # Leer el archivo que contiene los puertos
@@ -360,6 +389,7 @@ suspender_shoutcast() {
         echo -e "\e[1;31m($contador).\e[0m \e[1m\e[97m $linea\e[0m"
         contador=$((contador+1))
     done < /home/shoutcast/cuentas_creadas.txt
+echo -e "\n\e[46m\e[36m------------------------------------------------------------\n\e[0m"
 
     echo "Ingrese el número correspondiente al puerto para suspender:"
     read opcion
@@ -380,9 +410,9 @@ suspender_shoutcast() {
     done < /home/shoutcast/cuentas_creadas.txt
 
     # Opción para volver
-    echo -e "\n\n\e[1;31m------------------------------------------------------------\e[0m"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
     echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-    echo -e "\e[1;31m------------------------------------------------------------\e[0m"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     read volver
     if [ $volver -eq 0 ]; then
@@ -409,9 +439,9 @@ unsuspender_shoutcast() {
     echo "Ingrese el número correspondiente al puerto para activar:"
     
     # Opción para volver
-    echo -e "\n\n------------------------------------------------------------"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
     echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-    echo "------------------------------------------------------------"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     read opcion
     if [ $opcion -eq 0 ]; then
@@ -456,6 +486,7 @@ auto_start() {
     echo -e "\e[1;33mGESTIÓN DEL AUTO-INICIO\e[0m\n"
     echo -e "\e[97m1. AGREGAR A INICIO AUTOMATICO\e[0m"
     echo -e "\e[97m2. ELIMINAR EL INICIO AUTOMATICO\e[0m\n\n"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     read -p "ELIJA UNA OPCION: " opcion
 
@@ -477,9 +508,9 @@ auto_start() {
     esac
 
     # Opción para volver
-    echo -e "\n\e[32m------------------------------------------------------------\e[0m"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
     echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-    echo -e "\e[32m------------------------------------------------------------\e[0m"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     read volver
     if [ "$volver" -eq 0 ]; then
@@ -506,7 +537,7 @@ detalles_full() {
             Lusuarios=$(awk -F '=' '/MaxUser/ {print $2}' "$radios" | tr -d ' ')
             Ladmin=$(awk -F '=' '/AdminPassword/ {print $2}' "$radios" | tr -d ' ')
 
-            echo -e "\e[32m--------------------------------------\e[0m"
+echo -e "\e[42m\e[32m------------------------------------------------------------\e[0m"
             echo -e "\e[33mPuerto:\e[0m  \e[97m$Lpuerto\e[0m"
             echo -e "\e[33mNombre:\e[0m  \e[97m$Lnombre\e[0m"
             echo -e "\e[33mContraseña:\e[0m  \e[97m$Lstream\e[0m"
@@ -517,9 +548,9 @@ detalles_full() {
     done
 
     # Opción para volver
-    echo -e "\n\e[32m------------------------------------------------------------\e[0m"
+echo -e "\n\n\e[46m\e[36m------------------------------------------------------------\e[0m"
     echo -e "\e[1;31m(0) .\e[1;32mVOLVER\e[0m"
-    echo -e "\e[32m------------------------------------------------------------\e[0m"
+echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
 
     read volver
     if [ $volver -eq 0 ]; then
@@ -546,7 +577,7 @@ inicializar_archivo_info
 # Bucle principal
 while true; do
     mostrar_menu
-    read -p "Ingrese su opción: " seleccion
+    read -p "Ingrese su opción:" seleccion
 
     case $seleccion in
 
