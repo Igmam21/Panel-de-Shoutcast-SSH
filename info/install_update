@@ -4,7 +4,6 @@
 echo "Ir a Ruta"
 cd /usr/local/bin
 
-
 echo "renombrando file"
 mv menu /usr/local/bin/menu2
 
@@ -15,7 +14,7 @@ echo "Dando permisos"
 chmod 777 /usr/local/bin/menu
 
 echo "removiendo archivo"
-mm menu2
+rm menu2
 
 
 
