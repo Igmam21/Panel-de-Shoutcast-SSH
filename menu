@@ -38,7 +38,7 @@ ram=$(free -m | awk 'NR==2{printf "%.0f/%.0f", $3, $2}')
 cpu=$(top -bn1 | grep '^%Cpu' | awk '{printf "%.1f/%.1f", $2 + $4, 100 - $8}')
 
     # Versión actual declarada en el script
-    version_actual="1.0"  
+    version_actual="1.0.1"  
     # Obtener la versión del repositorio remoto
     version_remota=$(curl -s https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/info/update)
     # Comparar las versiones
