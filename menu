@@ -37,7 +37,16 @@ ram=$(free -m | awk 'NR==2{printf "%.0f/%.0f", $3, $2}')
 # Obtener el uso de CPU
 cpu=$(top -bn1 | grep '^%Cpu' | awk '{printf "%.1f/%.1f", $2 + $4, 100 - $8}')
 
-
+    # Versión actual declarada en el script
+    version_actual="1.0"  
+    # Obtener la versión del repositorio remoto
+    version_remota=$(curl -s https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/info/update)
+    # Comparar las versiones
+    if [ "$version_actual" != "$version_remota" ]; then
+        opcion_actualizacion="\e[1;35m(99) .\e[1;3mACTUALIZACIÓN DISPONIBLE\e[0m"
+    else
+        opcion_actualizacion=""
+    fi
 
 
 # Imprimir la información formateada con colores
@@ -52,8 +61,7 @@ echo -e "\e[1;33mACTIVAS:\e[0m  \e[1;32m$cantidad_pid\e[0m\t \
 echo -e "\e[1;33mSUSPEND:\e[0m  \e[1;35m$suspendidas\e[0m\t \
 \e[1;33mFECHA:\e[0m       \e[1;34m$fecha\e[0m"
 
-echo -e "\e[1;33mVersion:\e[0m  \e[1;97m1.0\e[0m\t \
-\e[1;33mHORA:\e[0m        \e[1;34m$hora\e[0m"
+echo -e "\e[1;33mVersion:\e[0m  \e[1;97m$version\e[0m\t \e[1;33mHORA:\e[0m  \e[1;34m$hora\e[0m"
 
 
 echo -e "\e[1;33mBY:\e[0m  \e[1;97mIGMAR M\e[0m\t \
@@ -66,12 +74,8 @@ echo -e "\e[46m\e[36m-----------------------------------------------------------
  
 
     # Mensaje
-        # Imprime dos líneas en blanco y luego el mensaje centrado
-  
-    echo -e "\n\e[1;37m//////=// //=//  PANNEL DE CUENTAS SHOUTCAST  //=// //=/////\e[0m\n"
+      echo -e "\n\e[1;37m//////=// //=//  PANNEL DE CUENTAS SHOUTCAST  //=// //=/////\e[0m\n"
 
-
-    
     # Resto del menú con colores
 echo -e "\e[42m\e[32m------------------------------------------------------------\e[0m"
 echo -e "\e[1;31m(1) .\e[1;32mCREAR PUERTO SHOUTCAST\e[0m"
@@ -84,65 +88,32 @@ echo -e "\e[1;31m(7) .\e[1;32mREACTIVAR USER\e[0m"
 echo -e "\e[1;31m(8) .\e[1;32mREINICIAR SERVER\e[0m"
 echo -e "\e[1;31m(9) .\e[1;32mFULL DETALLES DE PUERTOS \e[0m"
 echo -e "\e[1;31m(10) .\e[1;32mAUTO INICIAR\e[0m\n"
-echo -e "\e[1;31m(11) .\e[1;32mUPDATE\e[0m\n"
+
 
 
 echo -e "\e[42m\e[32m------------------------------------------------------------\e[0m"
 
-if [ "$actualizacion_disponible" == "true" ]; then
-    echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m\t\e[1;33m(99) .\e[0m  \e[1;35mActualización disponible\e[0m"
-else
-    echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m"
-fi
+
+    # Salir y opción para mostrar actualización si está disponible
+    echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m\t $opcion_actualizacion"
 
 echo -e "\e[46m\e[36m------------------------------------------------------------\e[0m"
-
-# Supongamos que tienes una variable llamada 'actualizacion_disponible' que indica si hay actualizaciones
-
-# Establecer la versión actual
-current_version="1.0.1"  # Reemplaza esto con la versión actual de tu script
+}
 
 
-# Escribir la versión en el archivo update
-echo "$current_version" > update
 
-# Leer la versión desde el archivo update en GitHub
-current_version=$(curl -s https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/info/versions)
 
-# Obtener la última versión del script desde GitHub
-latest_version=$(curl -s https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/info/update | grep -oP '"tag_name": "\K(.*)(?=")')
-
-if [ "$latest_version" != "$current_version" ]; then
-    echo "¡Hay una nueva versión ($latest_version) disponible! ¿Deseas actualizar? (S/N)"
-    read opcion
-
-    if [ "$opcion" == "S" ] || [ "$opcion" == "s" ]; then
-        # Descargar la nueva versión desde GitHub
-        curl -sLJO https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/install
-        echo "¡Script actualizado a la versión $latest_version!"
-
-        # Actualizar la versión en el archivo update en GitHub
-        echo "$latest_version" > update
-    fi
-else
-    echo "El script está actualizado a la versión más reciente."
+# Verificar la opción seleccionada
+if [ "$opcion" -eq 99 ]; then
+    # Llamar a la función de actualización
+    actualizar
 fi
 
-
-
-
-
+# Función para actualizar
+actualizar() {
+    # Ejecuta la actualización
+    apt install curl -y && curl -s https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/info/install_update -o install_update && chmod 777 install_update && ./install_update
 }
-
-ir_inicio() {
-    clear  # Limpia la pantalla al entrar en esta función
-
-    menu  # Ejecuta el script MENU
-
-    exit  # Termina el programa después de ejecutar scrip.sh
-}
-
-
 
 crear_puerto() {
     clear  # Limpia la pantalla al entrar en esta función
@@ -600,43 +571,6 @@ echo -e "\e[46m\e[36m-----------------------------------------------------------
 
 
 
-updates() {
-if [ "$opcion" == "S" ] || [ "$opcion" == "s" ]; then
-    # Descargar la nueva versión desde GitHub
-    curl -sLJO https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/install
-    mv install /root/install  # Mover el archivo descargado a /root
-    chmod +x /root/install    # Dar permisos de ejecución si es necesario
-    echo "¡Script actualizado a la versión $latest_version!"
-fi
-
-}
-
-
-# Obtener la última versión del script desde GitHub
-latest_version=$(curl -s https://api.github.com/repos/Igmam21/Panel-de-Shoutcast-SSH/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-
-# Comparar la última versión con la versión actual
-current_version="1.0"  # Debes reemplazar esto con la versión actual de tu script
-
-# Verificar si hay una actualización disponible
-if [ "$latest_version" != "$current_version" ]; then
-    actualizacion_disponible="true"
-else
-    actualizacion_disponible="false"
-fi
-
-# Mostrar el menú con la opción de actualización si hay una actualización disponible
-if [ "$actualizacion_disponible" == "true" ]; then
-    echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m\t\e[1;33m(99) .\e[0m  \e[1;35mActualización disponible\e[0m"
-else
-    echo -e "\e[1;31m(0) .\e[1;32mSALIR\e[0m"
-fi
-
-
-
-
-
-
 # Llamada a la función para inicializar el archivo de información de cuentas
 inicializar_archivo_info
 
@@ -669,7 +603,7 @@ while true; do
                     ;;
                 10) auto_start
                     ;;
-                11) updates
+                99) actualizar
                     ;;
                  0)
     clear  # Limpiar la pantalla al entrar en esta función
