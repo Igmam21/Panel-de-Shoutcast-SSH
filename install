@@ -12,7 +12,7 @@ echo "Ir a Ruta"
 cd /usr/local/bin
 
 echo "DESACARGANDO archivo"
-wget https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/menu
+wget https://raw.githubusercontent.com/Igmam21/Panel-de-Shoutcast-SSH/main/versiones/10/menu
 
 echo "Dando permisos..................................................."
 chmod 777 /usr/local/bin/menu
